@@ -5,18 +5,18 @@ import java.nio.file.*;
 
 public class FileWritingClass { 
 
-    public void saveUserScore(UserInfo userInfo) {
-        if (userInfo == null) {
+    public void saveUserScore(PlayerInfo playerInfo) {
+        if (playerInfo == null) {
             System.err.println("saveUserScore: userInfo is null");
             return;
         }
 
-        String name = userInfo.getPlayerName();
+        String name = playerInfo.getPlayerName();
         if (name == null || name.trim().isEmpty()) {
             name = "Anonymous";
         }
 
-        int score = userInfo.getUserScore();
+        int score = playerInfo.getPlayerScore();
         String line = name + " - " + score + System.lineSeparator();
 
         try {

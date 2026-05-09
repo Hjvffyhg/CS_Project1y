@@ -8,7 +8,6 @@ public class processClass {
     private final Random ran = new Random();
     private final String[] colors = {"YELLOW", "BLUE", "RED", "GREEN"};
     private final Color[] colorValues = {Color.YELLOW, Color.BLUE, Color.RED, Color.GREEN};
-    public String user;
 
     public int CoT() {
         return ran.nextInt(2);

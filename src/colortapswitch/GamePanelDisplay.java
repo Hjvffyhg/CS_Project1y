@@ -19,7 +19,7 @@ public class GamePanelDisplay extends JPanel {
 // ================= PANEL =================
 class GamePanel extends JPanel {
 
-    UserInfo userInfo;
+    PlayerInfo userInfo;
     processClass pc;
     
     String correctAnswer;
@@ -145,7 +145,7 @@ class GamePanel extends JPanel {
                 blue.setEnabled(false);
                 yellow.setEnabled(false);
                 
-                userInfo = new UserInfo(playerName, totalScore);
+                userInfo = new PlayerInfo(playerName, totalScore);
                 
                 FileWritingClass w2f =  new FileWritingClass();
                 w2f.saveUserScore(userInfo);
