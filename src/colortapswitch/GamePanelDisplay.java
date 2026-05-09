@@ -3,34 +3,37 @@ package colortapswitch;
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanelDisplay {
+public class GamePanelDisplay extends JPanel {
 
-    public static void startGame(JFrame frame, userInfo info) {
-        frame.setContentPane(new GamePanel(info));
-        frame.revalidate();
-        frame.repaint();
+    public void StartGame(String playerName) {
+        JFrame frame = new JFrame("COLOR GAME");
+
+        frame.setSize(1000, 800);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(new GamePanel(playerName));
+        frame.setVisible(true);
     }
 }
 
+// ================= PANEL =================
 class GamePanel extends JPanel {
 
-    processClass PG;
-    JLabel word, score, timer;
-    JLabel colorLabel, textLabel;
-
+    UserInfo userInfo;
+    processClass pc;
+    
     String correctAnswer;
     int colorOrText;
-
-    int scoreVal = 0;
+    int totalScore = 0;
     boolean timeUp = false;
+    String playerName;
 
+    JLabel word, score, timer;
     JButton green, red, blue, yellow;
 
-    userInfo info;
-
-    public GamePanel(userInfo info) {
-        this.info = info;
-        PG = new processClass();
+    public GamePanel(String playerName) {
+        this.playerName = playerName;
+        pc = new processClass();
 
         setLayout(null);
         setBackground(new Color(40, 0, 120));
@@ -56,11 +59,11 @@ class GamePanel extends JPanel {
         add(timer);
 
         // ===== MODE LABELS =====
-        colorLabel = new JLabel("COLOR", SwingConstants.CENTER);
+        JLabel colorLabel = new JLabel("COLOR", SwingConstants.CENTER);
         colorLabel.setBounds(400, 60, 200, 40);
         colorLabel.setOpaque(true);
 
-        textLabel = new JLabel("TEXT", SwingConstants.CENTER);
+        JLabel textLabel = new JLabel("TEXT", SwingConstants.CENTER);
         textLabel.setBounds(400, 100, 200, 40);
         textLabel.setOpaque(true);
 
@@ -76,9 +79,9 @@ class GamePanel extends JPanel {
         add(word);
 
         // ===== BUTTON PANEL =====
-        int size = 200;
-        int gap = 20;
-        int padding = 20;
+         int size = 200;
+         int gap = 20;
+         int padding = 20;
 
         int startX = (1000 - (size * 2 + gap)) / 2;
         int startY = 300;
@@ -89,7 +92,8 @@ class GamePanel extends JPanel {
                 startX - padding,
                 startY - padding,
                 size * 2 + gap + padding * 2,
-                size * 2 + gap + padding * 2);
+                size * 2 + gap + padding * 2
+        );
         bgPanel.setLayout(null);
         bgPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
         add(bgPanel);
@@ -116,12 +120,13 @@ class GamePanel extends JPanel {
         blue.addActionListener(e -> handleClick("BLUE"));
         yellow.addActionListener(e -> handleClick("YELLOW"));
 
-        // ===== COUNTDOWN TIMER =====
-        int[] secondsLeft = {60};
+        // ===== TIMER =====
+        int[] secondsLeft = {10};
 
         javax.swing.Timer countdown = new javax.swing.Timer(1000, null);
 
         countdown.addActionListener(e -> {
+
             secondsLeft[0]--;
 
             int minutes = secondsLeft[0] / 60;
@@ -129,7 +134,7 @@ class GamePanel extends JPanel {
             timer.setText(String.format("%d:%02d", minutes, seconds));
 
             if (secondsLeft[0] <= 0) {
-                countdown.stop();
+                countdown.stop(); // NOW VALID
                 timeUp = true;
 
                 timer.setText("0:00");
@@ -139,36 +144,46 @@ class GamePanel extends JPanel {
                 red.setEnabled(false);
                 blue.setEnabled(false);
                 yellow.setEnabled(false);
-
-                // ✅ Save score ONCE here only
-                info.setScore(scoreVal);
-                info.saveUserInfoToFile();
+                
+                userInfo = new UserInfo(playerName, totalScore);
+                
+                FileWritingClass w2f =  new FileWritingClass();
+                w2f.saveUserScore(userInfo);
 
                 JOptionPane.showMessageDialog(null,
-                        "Time's up! Final Score: " + scoreVal,
+                        "Time's up! Final Score: " + totalScore,
                         "GAME OVER",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
         countdown.start();
-        nextRound();
+
+        // ===== START FIRST ROUND =====
+        nextRound(colorLabel, textLabel);
     }
 
-    private void nextRound() {
-        if (timeUp) return;
+    // ===== NEW ROUND =====
+    private void nextRound(JLabel colorLabel, JLabel textLabel) {
 
-        colorOrText = PG.CoT();
+        if (timeUp) {
+            return;
+        }
+        // 1/0
+        colorOrText = pc.CoT();
 
-        int wordIndex = PG.getRandomColorIndex();
-        int inkIndex  = PG.getRandomColorIndex();
+        int wordIndex = pc.getRandomColorIndex();
+        int inkIndex = pc.getRandomColorIndex();
 
-        String wordText = PG.getTextByIndex(wordIndex);
-        Color inkColor  = PG.getColorByIndex(inkIndex);
+        String wordText = pc.getTextByIndex(wordIndex);
+        Color inkColor = pc.getColorByIndex(inkIndex);
 
         word.setText(wordText);
+        
         word.setForeground(inkColor);
 
+        // Highlight mode
+        // 1 = TEXT mode, 0 = COLOR mode
         if (colorOrText == 1) {
             colorLabel.setBackground(Color.DARK_GRAY);
             textLabel.setBackground(Color.WHITE);
@@ -177,28 +192,35 @@ class GamePanel extends JPanel {
             textLabel.setBackground(Color.DARK_GRAY);
         }
 
+        // 0/1 
         correctAnswer = (colorOrText == 0)
-                ? PG.getTextByIndex(inkIndex)
+                ? pc.getTextByIndex(inkIndex)
                 : wordText;
     }
 
+    // ===== HANDLE CLICK =====
     private void handleClick(String clicked) {
-        if (timeUp) return;
 
-        if (clicked.equals(correctAnswer)) {
-            scoreVal++;
+        if (timeUp) {
+            return;
         }
 
-        score.setText(String.valueOf(scoreVal));
-        nextRound();
+        if (clicked.equals(correctAnswer)) {
+            totalScore++;
+        }
+
+        score.setText(String.valueOf(totalScore));
+
+        // NEW ROUND EVERY CLICK
+        nextRound((JLabel) getComponent(3), (JLabel) getComponent(4));
     }
 
     private JButton createColorButton(Color color) {
-        JButton btn = new JButton();
-        btn.setBackground(color);
-        btn.setOpaque(true);
-        btn.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
-        btn.setFocusPainted(false);
-        return btn;
+        JButton colorBtn = new JButton();
+        colorBtn.setBackground(color);
+        colorBtn.setOpaque(true);
+        colorBtn.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 5));
+        colorBtn.setFocusPainted(false);
+        return colorBtn;
     }
 }

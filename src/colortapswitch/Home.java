@@ -1,61 +1,52 @@
 package colortapswitch;
 
-/**
- *
- * @author tino
- */
 import javax.swing.*;
 import java.awt.*;
 
 public class Home extends JPanel {
 
-    private JFrame frame;
-    public String username;
-
+    public String playerName;
+   
     public Home(JFrame frame) {
+   
 
         setLayout(null);
         setBackground(new Color(40, 0, 120));
 
-        JLabel C = new JLabel("COLOR");
-        C.setBounds(125, 100, 500, 300);
-        C.setForeground(Color.BLACK);
-        C.setFont(new Font("Arial", Font.BOLD, 130));
+        JLabel colorJL = new JLabel("COLOR");
+        colorJL.setBounds(125, 100, 500, 300);
+        colorJL.setForeground(Color.BLACK);
+        colorJL.setFont(new Font("Arial", Font.BOLD, 130));
 
-        JLabel S = new JLabel("TAP");
-        S.setBounds(620, 100, 500, 300);
-        S.setForeground(Color.BLACK);
-        S.setFont(new Font("Arial", Font.BOLD, 130));
+        JLabel tapJL = new JLabel("TAP");
+        tapJL.setBounds(620, 100, 500, 300);
+        tapJL.setForeground(Color.BLACK);
+        tapJL.setFont(new Font("Arial", Font.BOLD, 130));
 
-        JLabel T = new JLabel("SWITCH");
-        T.setBounds(255, 240, 700, 300);
-        T.setForeground(Color.BLACK);
-        T.setFont(new Font("Arial", Font.BOLD, 130));
+        JLabel switchJL = new JLabel("SWITCH");
+        switchJL.setBounds(255, 240, 700, 300);
+        switchJL.setForeground(Color.BLACK);
+        switchJL.setFont(new Font("Arial", Font.BOLD, 130));
 
-        add(T);
-        add(C);
-        add(S);
+        add(colorJL);
+        add(tapJL);
+        add(switchJL);
 
-        JTextField name = new JTextField();
-        name.setBounds(400, 600, 200, 60);
-        add(name);
+        JTextField userNameJTF = new JTextField();
+        userNameJTF.setBounds(400, 600, 200, 60);
+        add(userNameJTF);
 
-        JButton startBtn = new JButton("START GAME");
-        startBtn.setBounds(400, 700, 200, 60);
-        add(startBtn);
+        JButton startJB = new JButton("START GAME");
+        startJB.setBounds(400, 700, 200, 60);
+        add(startJB);
 
-        startBtn.addActionListener(e -> {
-            username = name.getText();
-
-            if (username.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Enter your name first!");
-                return;
-            }
-
-            userInfo info = new userInfo();
-            info.setUsername(username);
-
-            GamePanelDisplay.startGame(frame, info);
+        startJB.addActionListener(e -> {
+            
+            this.playerName = userNameJTF.getText();
+            
+            frame.setContentPane(new GamePanel(playerName));
+            frame.revalidate();
+            frame.repaint();
         });
     }
 }
